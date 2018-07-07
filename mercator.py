@@ -1,7 +1,8 @@
-# -*- coding:utf-8 -*-
-'''
-百度地图的墨卡托坐标转为经纬度坐标
-'''
+# -*- coding: utf-8 -*-
+# @File    : mercator.py
+# @Author  : LVFANGFANG
+# @Time    : 2018/7/7 0007 13:34
+# @Desc    : 墨卡托坐标与百度经纬度坐标相互转换
 
 import math
 
@@ -56,6 +57,20 @@ def mercator_to_lnglat(mlnglat):
 
     return lnglat
 
+def lnglat_to_mercator(lnglat):
+    mc = []
+    lng = getLoop(lnglat['lng'], -180, 180)
+    lat = getRange(lnglat['lat'], -74, 74)
+    for i in range(len(LLBAND)):
+        if lat >= LLBAND[i]:
+            mc = LL2MC[i]
+            break
+    if mc:
+        for i in reversed(range(len(LLBAND))):
+            if lat <= - LLBAND[i]:
+                mc = LL2MC[i]
+                break
+    return convertor({'lng': lng, 'lat': lat}, mc)
 
 def convertor(point, mc):
     if not point or not mc:
@@ -75,5 +90,22 @@ def convertor(point, mc):
     return {'lng': lng, 'lat': lat}
 
 
+def getLoop(lng, minimum, maximum):
+    while (lng > maximum):
+        lng -= maximum - minimum
+    while (lng < minimum):
+        lng += maximum - minimum
+    return lng
+
+
+def getRange(lat, minimum, maximum):
+    if minimum:
+        lat = max(lat, minimum)
+    if maximum:
+        lat = min(lat, maximum)
+    return lat
+
+
 if __name__ == '__main__':
-    print mercator_to_lnglat({'lng': 12672289.52, 'lat': 2524478.36})
+    print(mercator_to_lnglat({'lng': 12672289.52, 'lat': 2524478.36}))
+    print(lnglat_to_mercator({'lng': 113.835875, 'lat': 22.243608}))
